@@ -9,19 +9,19 @@ stemmer = LancasterStemmer()
 def sigmoid(x):
     output = 1/(1+np.exp(-x))
     return output
-def clean_up_sentence(sentence):
+def clean_up_description(description):
     # tokenize the pattern
-    sentence_words = nltk.word_tokenize(sentence)
+    description_words = nltk.word_tokenize(description)
     # stem each word
-    sentence_words = [stemmer.stem(word.lower()) for word in sentence_words]
-    return sentence_words
-# return bag of words array: 0 or 1 for each word in the bag that exists in the sentence
-def bow(sentence, words, show_details=False):
+    description_words = [stemmer.stem(word.lower()) for word in description_words]
+    return description_words
+# return bag of words array: 0 or 1 for each word in the bag that exists in the description
+def bow(description, words, show_details=False):
     # tokenize the pattern
-    sentence_words = clean_up_sentence(sentence)
+    description_words = clean_up_description(description)
     # bag of words
     bag = [0]*len(words)  
-    for s in sentence_words:
+    for s in description_words:
         for i,w in enumerate(words):
             if w == s: 
                 bag[i] = 1
@@ -30,10 +30,10 @@ def bow(sentence, words, show_details=False):
 
     return(np.array(bag))
 
-def think(sentence, show_details=False):
-    x = bow(sentence.lower(), words, show_details)
+def think(description, show_details=False):
+    x = bow(description.lower(), words, show_details)
     if show_details:
-        print ("sentence:", sentence, "\n bow:", x)
+        print ("description:", description, "\n bow:", x)
     # input layer is our bag of words
     l0 = x
     # matrix multiplication of input and hidden layer
@@ -50,21 +50,18 @@ with open(synapse_file) as data_file:
     synapse_0 = np.asarray(synapse['synapse0']) 
     synapse_1 = np.asarray(synapse['synapse1'])
     words = np.asarray(synapse['words'])
-    classes = np.asarray(synapse['classes'])
+    states = np.asarray(synapse['states'])
 
-def classify(sentence, show_details=False):
-    results = think(sentence, show_details)
+def classify(description, show_details=False):
+    results = think(description, show_details)
 
     results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD ] 
     results.sort(key=lambda x: x[1], reverse=True) 
-    return_results =[[classes[r[0]],r[1]] for r in results]
-    print ("%s \n classification: %s" % (sentence, return_results))
+    return_results =[[states[r[0]],r[1]] for r in results]
+    print ("%s \n classification: %s" % (description, return_results))
     return return_results
 
 #Lets see how it works!
-classify("sudo make me a sandwich")
-classify("how are you today?")
-classify("talk to you tomorrow")
-classify("who are you?")
-classify("make me some lunch")
-classify("how was your lunch today?")
+classify("great jewelry")
+classify("best experience")
+classify("making hockey sticks best nerd")
