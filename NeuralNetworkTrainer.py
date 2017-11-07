@@ -11,8 +11,8 @@ from nltk.corpus import stopwords
 stemmer = LancasterStemmer()
 # Here is where we load our training data
 training_data = []
-with open('sample.json') as json_data:
-    d = json.load(json_data)
+with open('final_project.json') as json_data:
+	d = json.load(json_data)
 for item in d:
     del item['slug']
     del item['id']
@@ -203,7 +203,7 @@ y = np.array(output)
 
 start_time = time.time()
 
-train(X, y, hidden_neurons=50, alpha=0.1, epochs=100000, dropout=False, dropout_percent=0.2)
+train(X, y, hidden_neurons=100, alpha=0.1, epochs=100000, dropout=False, dropout_percent=0.2)
 
 elapsed_time = time.time() - start_time
 print ("processing time:", elapsed_time, "seconds")

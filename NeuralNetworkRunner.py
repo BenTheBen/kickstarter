@@ -62,6 +62,5 @@ def classify(description, show_details=False):
     return return_results
 
 #Lets see how it works!
-classify("great jewelry")
 classify("best experience")
 classify("making hockey sticks best nerd")
