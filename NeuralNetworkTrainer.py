@@ -11,7 +11,7 @@ from nltk.corpus import stopwords
 stemmer = LancasterStemmer()
 # Here is where we load our training data
 with open('final_project.json') as json_data:
-	training_data = json.load(json_data)
+	training_data = json.load(json_data)[:10]
 words = []
 states = []
 documents = []
