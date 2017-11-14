@@ -12,6 +12,7 @@ stemmer = LancasterStemmer()
 # Here is where we load our training data
 with open('final_project.json') as json_data:
 	training_data = json.load(json_data)
+	training_data = training_data[:10]
 words = []
 states = []
 documents = []
@@ -138,7 +139,7 @@ y = np.array(output)
 
 start_time = time.time()
 
-train(X, y, hidden_neurons=100, alpha=1, epochs=100000, dropout=False, dropout_percent=0.2)
+train(X, y, hidden_neurons=100, alpha=0.1, epochs=100000, dropout=False, dropout_percent=0.2)
 
 elapsed_time = time.time() - start_time
 print ("processing time:", elapsed_time, "seconds")
