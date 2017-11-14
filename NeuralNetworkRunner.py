@@ -54,10 +54,10 @@ with open(synapse_file) as data_file:
 
 def classify(description, show_details=False):
     results = think(description, show_details)
-
+    stateWords=['failure','success']
     results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD ] 
     results.sort(key=lambda x: x[1], reverse=True) 
-    return_results =[[states[r[0]],r[1]] for r in results]
+    return_results =[[stateWords[r[0]],r[1]] for r in results]
     print ("%s \n classification: %s" % (description, return_results))
     return return_results
 
