@@ -10,43 +10,24 @@ import datetime
 from nltk.corpus import stopwords
 stemmer = LancasterStemmer()
 # Here is where we load our training data
-training_data = []
 with open('final_project.json') as json_data:
-	d = json.load(json_data)
-for item in d:
-    del item['slug']
-    del item['id']
-    training_data.append(item)
-
-print ("%s descriptions in training data" % len(training_data))
-
-#Next, we need to turn our data into a bag of words.
+	training_data = json.load(json_data)
 words = []
 states = []
 documents = []
-stopW = stopwords.words("english")
 # loop through each description in our training data
 for pattern in training_data:
-    # tokenize each word in the description
-    w = nltk.word_tokenize(pattern['description'])
     # add to our words list
-    words.extend(w)
+    words.extend(pattern[0])
     # add to documents in our corpus
-    documents.append((w, pattern['state']))
+    documents.append((pattern[0], pattern[1]))
     # add to our states list
-    if pattern['state'] not in states:
-        states.append(pattern['state'])
-
-# stem and lower each word and remove duplicates
-words = [stemmer.stem(w.lower()) for w in words if w not in stopW]
+    if pattern[1] not in states:
+        states.append(pattern[1])
+#remove duplicates
 words = list(set(words))
-
-# remove duplicates
+# remove duplicates (should be unneccesary)
 states = list(set(states))
-
-print (len(documents), "documents")
-print (len(states), "states", states)
-print (len(words), "unique stemmed words", words)
 
 # create our training data
 training = []
@@ -60,24 +41,14 @@ for doc in documents:
     bag = []
     # list of tokenized words for the pattern
     pattern_words = doc[0]
-    # stem each word
-    pattern_words = [stemmer.stem(word.lower()) for word in pattern_words]
     # create our bag of words array
     for w in words:
         bag.append(1) if w in pattern_words else bag.append(0)
-
     training.append(bag)
     # output is a '0' for each tag and '1' for current tag
     output_row = list(output_empty)
     output_row[states.index(doc[1])] = 1
     output.append(output_row)
-
-# sample training/output
-i = 0
-w = documents[i][0]
-print ([stemmer.stem(word.lower()) for word in w])
-print (training[i])
-print (output[i])
 
 # compute sigmoid nonlinearity
 def sigmoid(x):
@@ -88,40 +59,6 @@ def sigmoid(x):
 def sigmoid_output_to_derivative(output):
     return output*(1-output)
  
-def clean_up_description(description):
-    # tokenize the pattern
-    description_words = nltk.word_tokenize(description)
-    # stem each word
-    description_words = [stemmer.stem(word.lower()) for word in description_words]
-    return description_words
-
-# return bag of words array: 0 or 1 for each word in the bag that exists in the description
-def bow(description, words, show_details=False):
-    # tokenize the pattern
-    description_words = clean_up_description(description)
-    # bag of words
-    bag = [0]*len(words)  
-    for s in description_words:
-        for i,w in enumerate(words):
-            if w == s: 
-                bag[i] = 1
-                if show_details:
-                    print ("found in bag: %s" % w)
-
-    return(np.array(bag))
-
-def think(description, show_details=False):
-    x = bow(description.lower(), words, show_details)
-    if show_details:
-        print ("description:", description, "\n bow:", x)
-    # input layer is our bag of words
-    l0 = x
-    # matrix multiplication of input and hidden layer
-    l1 = sigmoid(np.dot(l0, synapse_0))
-    # output layer
-    l2 = sigmoid(np.dot(l1, synapse_1))
-    return l2
-
 def train(X, y, hidden_neurons=10, alpha=1, epochs=50000, dropout=False, dropout_percent=0.5):
 
     print ("Input matrix: %sx%s    Output matrix: %sx%s" % (len(X),len(X[0]),1, len(states)) )
@@ -184,8 +121,6 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50000, dropout=False, dropout
         
         prev_synapse_0_weight_update = synapse_0_weight_update
         prev_synapse_1_weight_update = synapse_1_weight_update
-
-    now = datetime.datetime.now()
 
     # persist synapses
     synapse = {'synapse0': synapse_0.tolist(), 'synapse1': synapse_1.tolist(),

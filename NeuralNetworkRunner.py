@@ -64,3 +64,4 @@ def classify(description, show_details=False):
 #Lets see how it works!
 classify("best experience")
 classify("making hockey sticks best nerd")
+classify("rawr")
