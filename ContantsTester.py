@@ -1,0 +1,1 @@
+#we will use this to figure out what the best constant are for the networks
