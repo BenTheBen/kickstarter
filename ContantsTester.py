@@ -131,6 +131,6 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=10000, dropout=True, dropout_
 X = np.array(training)
 y = np.array(output)
 
-for alphaA in range(10):
-	totalError=train(X, y, hidden_neurons=10, alpha=(alphaA/10), dropout_percent=0.2)
-	print(alphaA, totalError)
+for alphaA in range(10): #dont mess with epochs. also, lets use dropout=true
+	totalError=train(X, y, hidden_neurons=7, alpha=(alphaA/10), dropout_percent=0.2)
+	print(alphaA/10, totalError)
