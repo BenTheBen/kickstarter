@@ -16,7 +16,7 @@ from nltk.corpus import stopwords
 stemmer = LancasterStemmer()
 # Here is where we load our training data
 with open('final_project.json') as json_data:
-	training_data = json.load(json_data)[:10]
+	training_data = json.load(json_data)[:3]
 words = []
 states = []
 documents = []
@@ -65,10 +65,8 @@ def sigmoid_output_to_derivative(output):
     return output*(1-output)
  
 def train(X, y, hidden_neurons=10, alpha=1, epochs=10000, dropout=True, dropout_percent=0.5):
-
-    print ("Input matrix: %sx%s    Output matrix: %sx%s" % (len(X),len(X[0]),1, len(states)) )
     np.random.seed(1)
-
+    #print ("Input matrix: %sx%s    Output matrix: %sx%s" % (len(X),len(X[0]),1, len(states)) )
     last_mean_error = 1
     # randomly initialize our weights with mean 0
     synapse_0 = 2*np.random.random((len(X[0]), hidden_neurons)) - 1
@@ -97,10 +95,10 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=10000, dropout=True, dropout_
         if (j% 10000) == 0 and j > 5000:
             # if this 10k iteration's error is greater than the last iteration, break out
             if np.mean(np.abs(layer_2_error)) < last_mean_error:
-                print ("delta after "+str(j)+" iterations:" + str(np.mean(np.abs(layer_2_error))) )
+                #print ("delta after "+str(j)+" iterations:" + str(np.mean(np.abs(layer_2_error))) )
                 last_mean_error = np.mean(np.abs(layer_2_error))
             else:
-                print ("break:", np.mean(np.abs(layer_2_error)), ">", last_mean_error )
+                #print ("break:", np.mean(np.abs(layer_2_error)), ">", last_mean_error )
                 break
                 
         # in what direction is the target value?
@@ -130,7 +128,25 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=10000, dropout=True, dropout_
 
 X = np.array(training)
 y = np.array(output)
-
-for alphaA in range(10): #dont mess with epochs. also, lets use dropout=true
-	totalError=train(X, y, hidden_neurons=7, alpha=(alphaA/10), dropout_percent=0.2)
-	print(alphaA/10, totalError)
+neuronsMultiplier = 10
+dropoutRange = 20
+alphaRange = 20
+bestError = 1
+bestAlpha = 0.2
+bestNeurons = 0
+bestDropout = 0.5
+for neurons in range(int(len(words)/neuronsMultiplier)):
+	for alphaA in range(alphaRange):
+		for dropoutP in range(dropoutRange):
+			if neurons!=0 and alphaA!=0 and dropoutP!=0:
+				totalError=train(X, y, hidden_neurons=neurons*neuronsMultiplier, alpha=(alphaA/alphaRange), dropout_percent=(dropoutP/dropoutRange)) #dont mess with epochs. also, lets use dropout=true
+				print("Neurons: %r --- Alpha: %r --- Dropout: %r --- Error: %r" %((neurons*neuronsMultiplier),(alphaA/alphaRange),(dropoutP/dropoutRange),totalError))
+				if(totalError<bestError):
+					bestAlpha = (alphaA/alphaRange)
+					bestNeurons = neurons*neuronsMultiplier
+					bestDropout = (dropoutP/dropoutRange)
+					print(bestAlpha, bestNeurons, bestDropout)
+					bestError = totalError
+with open("BestConstants.txt", 'w') as outfile:
+	outfile.write("Best Constants... \n Alpha: %r \n Dropout Percent: %r \n Hidden Neurons: %r" %(bestAlpha,bestDropout,bestNeurons))
+print ("saved constants to BestConstants.txt")
