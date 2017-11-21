@@ -58,10 +58,13 @@ def classify(description, show_details=False):
     results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD ] 
     results.sort(key=lambda x: x[1], reverse=True) 
     return_results =[[stateWords[r[0]],r[1]] for r in results]
-    print ("%s \n classification: %s" % (description, return_results))
+    #print ("%s \n classification: %s" % (description, return_results))
     return return_results
 
-#Lets see how it works!
-classify("best experience")
-classify("making hockey sticks best nerd")
-classify("rawr")
+desc=input("Type your project description here: ")
+res=classify(desc)
+print(res)
+if len(res) == 1:
+    print("%d%% chance of %s" %(int(res[0][1]*100),res[0][0]))
+else:
+    print("%d%% chance of %s and %d%% chance of %s"%(int(res[0][1]*100),res[0][0],int(res[1][1]*100),res[1][0]))
