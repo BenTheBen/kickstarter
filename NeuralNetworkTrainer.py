@@ -8,10 +8,11 @@ import time
 import json
 import datetime
 from nltk.corpus import stopwords
+from collections import Counter
 stemmer = LancasterStemmer()
 # Here is where we load our training data
 with open('final_project.json') as json_data:
-	training_data = json.load(json_data)[:10]
+	training_data = json.load(json_data)[:20000]
 words = []
 states = []
 documents = []
@@ -24,17 +25,16 @@ for pattern in training_data:
     # add to our states list
     if pattern[1] not in states:
         states.append(pattern[1])
-#remove duplicates
-words = list(set(words))
-# remove duplicates (should be unneccesary)
+d=Counter(words)
+words=[pair[0] for pair in sorted(d.items(), key=lambda item: item[1])]
+words = list(set(words[-20000:]))
 states = list(set(states))
-
 # create our training data
 training = []
 output = []
 # create an empty array for our output
 output_empty = [0] * len(states)
-
+print("bag is made!")
 # training set, bag of words for each description
 for doc in documents:
     # initialize our bag of words
@@ -59,12 +59,11 @@ def sigmoid(x):
 def sigmoid_output_to_derivative(output):
     return output*(1-output)
  
-def train(X, y, hidden_neurons=10, alpha=1, epochs=50000, dropout=False, dropout_percent=0.5):
+def train(X, y, hidden_neurons=100, alpha=1, epochs=50000, dropout=False, dropout_percent=0.5):
 
     print ("Input matrix: %sx%s    Output matrix: %sx%s" % (len(X),len(X[0]),1, len(states)) )
     np.random.seed(1)
 
-    last_mean_error = 1
     # randomly initialize our weights with mean 0
     synapse_0 = 2*np.random.random((len(X[0]), hidden_neurons)) - 1
     synapse_1 = 2*np.random.random((hidden_neurons, len(states))) - 1
@@ -88,16 +87,8 @@ def train(X, y, hidden_neurons=10, alpha=1, epochs=50000, dropout=False, dropout
 
         # how much did we miss the target value?
         layer_2_error = y - layer_2
-
-        if (j% 10000) == 0 and j > 5000:
-            # if this 10k iteration's error is greater than the last iteration, break out
-            if np.mean(np.abs(layer_2_error)) < last_mean_error:
-                print ("delta after "+str(j)+" iterations:" + str(np.mean(np.abs(layer_2_error))) )
-                last_mean_error = np.mean(np.abs(layer_2_error))
-            else:
-                print ("break:", np.mean(np.abs(layer_2_error)), ">", last_mean_error )
-                break
-                
+        if(j%5 == 0):
+            print ("delta after "+str(j)+" iterations:" + str(np.mean(np.abs(layer_2_error))) )                
         # in what direction is the target value?
         # were we really sure? if so, don't change too much.
         layer_2_delta = layer_2_error * sigmoid_output_to_derivative(layer_2)
@@ -138,7 +129,7 @@ y = np.array(output)
 
 start_time = time.time()
 
-train(X, y, hidden_neurons=100, alpha=0.1, epochs=100000, dropout=False, dropout_percent=0.2)
+train(X, y, hidden_neurons=2000, alpha=0.5, epochs=100000, dropout=True, dropout_percent=0.2)
 
 elapsed_time = time.time() - start_time
 print ("processing time:", elapsed_time, "seconds")
